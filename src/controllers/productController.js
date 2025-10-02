@@ -1,30 +1,28 @@
 const { Op } = require('sequelize');
 const Product = require('../models/product');
+const productSchema = require('../validations/productValidation');
+const errorResponse = require('../utils/errorResponse');
 
 exports.getAllProducts = async (req, res) => {
     try {
         const products = await Product.findAll();
         res.json(products);
     } catch(err) {
-        res.status(500).json({error: 'Failed to fetch products'});
+        errorResponse(res, 500, 'Falied to get products');
     }
 };
 
+
 exports.createProduct = async (req, res) => {
+    const {error, value} = productSchema.validate(req.body, {abortEarly: false});
+    if (error) {
+        return errorResponse(res, 400, 'Validation error', error.details.map(e => e.message))
+    }
     try {
-        const { name, description, price, stock, status, categoryId, sellerId } = req.body;
-        const product = await Product.create({
-            name,
-            description,
-            price,
-            stock,
-            status,
-            categoryId,
-            sellerId
-        });
+        const product = await Product.create(value);
         res.status(201).json(product);
     } catch(err) {
-        res.status(500).json({ error: 'Failed to create product' });
+        errorResponse(res, 500, 'Falied to create product');
     }
 }
 
@@ -33,36 +31,30 @@ exports.getProductById = async (req, res) => {
         const {id} = req.params;
         const product = await Product.findByPk(id);
         if(!product) {
-            return res.status(404).json({error: 'Product not found'});
+            return errorResponse(res, 404, 'Product not found');
         }
         res.json(product);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to get product by ID' });
+        errorResponse(res, 500, 'Failed to get product by ID');
     }
 }
 
 exports.updateProduct = async (req, res) => {
+    const {id} = req.params;
+    const {error, value } = productSchema.validate(req.body, { abortEarly: false });
+    if(error) {
+        return errorResponse(res, 400, 'Validation error', error.details.map(e => e.message));
+    }
+
     try {
-        const {id} = req.params;
-        const { name, description, price, stock, status, categoryId, sellerId } = req.body;
         const product = await Product.findByPk(id);
-
-        if(!product) {
-            return res.status(404).json({error: 'Product not found'});
+        if (!product) {
+            return errorResponse(res, 404, 'Product not found');
         }
-
-        await product.update({
-            name,
-            description,
-            price,
-            stock,
-            status,
-            categoryId,
-            sellerId
-        });
+        await product.update(value);
         res.json(product);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to update product' });
+        errorResponse(res, 500, 'Failed to update product');
     }
 }
 
@@ -72,13 +64,13 @@ exports.deleteProduct = async(req, res) => {
         const product = await Product.findByPk(id);
 
         if(!product) {
-            return res.status(404).json({error: 'Product not found'});
+            return errorResponse(res, 404, 'Product not found');
         }
         await product.destroy();
 
-        res.json({ message: 'Product deleted successfully' });
+        res.status(204).send();
     } catch (err) {
-        res.status(500).json({ error: 'Failed to delete product' });
+        errorResponse(res, 500, 'Failed to delete product');
     }
 }
 
@@ -109,6 +101,6 @@ exports.searchProducts = async (req, res) => {
         const products = await Product.findAll({ where });
         res.json(products); // Luôn trả về mảng, không trả về 404
     } catch (err) {
-        res.status(500).json({ error: 'Failed to search products' });
+        errorResponse(res, 500, 'Failed to search products');
     }
 };

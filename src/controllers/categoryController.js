@@ -1,72 +1,40 @@
 const Category = require('../models/category');
-const categorySchema = require('../validations/categoryValidation');
-const errorResponse = require('../utils/errorResponse');
 
 exports.createCategory = async (req, res) => {
-    const { error, value } = categorySchema.validate(req.body, {abortEarly: false});
-
-    if (error) {
-        return errorResponse(res, 400, 'Validation error', error.details.map(e => e.message));
-    }
-
-    try {
-        const category = await Category.create(value);
-        res.status(201).json(category);
-    } catch (err) {
-        errorResponse(res, 500, 'Failed to create category');
-    }
-}
-
-exports.getAllCategory = async(req, res) => {
-    try {
-        const categories = await Category.findAll();
-        res.json(categories);
-    } catch (err) {
-        errorResponse(res, 500, 'Falied to get Categories');
-    }
-}
-
-exports.getCategoryById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const category = await Category.findByPk(id);
-        if (!category) {
-            return errorResponse(res, 404, 'Category not found');
-        }
-        res.json(category);
-    } catch (err) {
-        errorResponse(res, 500, 'Failed to get category');
-    }
+    const category = await Category.create(req.validatedBody);
+    res.status(201).json(category);
 };
 
-exports.updateCategory = async (req, res) => {
-    const { error, value } = categorySchema.validate(req.body, { abortEarly: false });
-    if (error) {
-        return errorResponse(res, 400, 'Validation error', error.details.map(e => e.message));
-    }
-    try {
-        const { id } = req.params;
-        const category = await Category.findByPk(id);
-        if (!category) {
-            return errorResponse(res, 404, 'Category not found');
-        }
-        await category.update(value);
-        res.json(category);
-    } catch (err) {
-        errorResponse(res, 500, 'Failed to update category');
-    }
+exports.getAllCategory = async (req, res) => {
+    const categories = await Category.findAll();
+    res.json(categories);
 };
 
-exports.deleteCategory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const category = await Category.findByPk(id);
-        if (!category) {
-            return errorResponse(res, 404, 'Category not found');
-        }
-        await category.destroy();
-        res.status(204).send();
-    } catch (err) {
-        errorResponse(res, 500, 'Failed to delete category');
+exports.getCategoryById = async (req, res, next) => {
+    const { id } = req.params;
+    const category = await Category.findByPk(id);
+    if (!category) {
+        return next({ status: 404, message: 'Category not found' });
     }
+    res.json(category);
+};
+
+exports.updateCategory = async (req, res, next) => {
+    const { id } = req.params;
+    const category = await Category.findByPk(id);
+    if (!category) {
+        return next({ status: 404, message: 'Category not found' });
+    }
+    await category.update(req.validatedBody);
+    res.json(category);
+};
+
+exports.deleteCategory = async (req, res, next) => {
+    const { id } = req.params;
+    const category = await Category.findByPk(id);
+    if (!category) {
+        return next({ status: 404, message: 'Category not found' });
+    }
+    await category.destroy();
+    res.status(204).send();
 };

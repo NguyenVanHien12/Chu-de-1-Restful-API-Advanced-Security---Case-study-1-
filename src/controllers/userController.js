@@ -45,7 +45,7 @@ exports.loginUser = async (req, res, next) => {
 exports.refreshToken = async (req, res) => {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-        return res.status(401).json({ error: 'No refresh token provided' });
+          return next({ status: 401, message: 'No refresh token provided' });
     }
     try {
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
@@ -57,6 +57,6 @@ exports.refreshToken = async (req, res) => {
         );
         res.json({ accessToken });
     } catch (err) {
-        res.status(401).json({ error: 'Invalid refresh token' });
+        return next({ status: 401, message: 'Invalid refresh token' });
     }
 };

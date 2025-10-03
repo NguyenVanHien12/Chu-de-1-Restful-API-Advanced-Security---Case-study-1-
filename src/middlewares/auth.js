@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 module.exports = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'No token provided' });
+        return next({ status: 401, message: 'No token provided' });
     }
     const token = authHeader.split(' ')[1];
     try {
@@ -11,6 +11,6 @@ module.exports = (req, res, next) => {
         req.user = decoded; // Lưu thông tin user vào request
         next();
     } catch (err) {
-        return res.status(401).json({ error: 'Invalid token' });
+        return next({ status: 401, message: 'Invalid token' });
     }
 };

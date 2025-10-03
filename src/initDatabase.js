@@ -2,6 +2,7 @@ const sequelize = require('./config/database');
 const Product = require('./models/product');
 const Category = require('./models/category');
 const Seller = require('./models/seller');
+const User = require('./models/user');
 
 Product.belongsTo(Category, {foreignKey: 'categoryId'});
 Product.belongsTo(Seller, {foreignKey: 'sellerId'});

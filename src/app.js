@@ -3,6 +3,7 @@ const sequelize = require('./config/database');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
+const userRoutes = require('./routes/userRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api', productRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', sellerRoutes);
+app.use('/api', userRoutes);
 app.use(errorHandler);
 
 // Khởi động server

@@ -19,10 +19,12 @@
   "homepage": "https://github.com/NguyenVanHien12/Case-Study-1---Chu-de-1---E-commerce-Product-API#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.1",
     "sequelize": "^6.37.7"
   },

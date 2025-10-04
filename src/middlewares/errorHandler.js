@@ -1,20 +1,23 @@
 const errorResponse = require('../utils/errorResponse');
 
 module.exports = (err, req, res, next) => {
-    //Ghi loi log ra console vs thoi gian & thong tin
     console.error(`[${new Date().toISOString()}]`, err);
 
-    //Joi Validation error
-    if(err.isJoi) {
+    // Joi Validation error
+    if (err.isJoi) {
         return errorResponse(res, 400, 'Validation', err.details.map(e => e.message));
     }
 
-    //Sequelize unique contraint error
-    if(err.name === 'SequelizeUniqueConstraintError') {
+    // Sequelize unique constraint error
+    if (err.name === 'SequelizeUniqueConstraintError') {
         return errorResponse(res, 409, 'Conflict error', err.errors.map(e => e.message));
     }
 
-    //Cac loi khac
-    
+    // Lỗi có status và message (ví dụ: phân quyền, xác thực)
+    if (err.status && err.message) {
+        return errorResponse(res, err.status, err.message, err.details || []);
+    }
+
+    // Các lỗi khác
     errorResponse(res, 500, 'Internal server error');
 }

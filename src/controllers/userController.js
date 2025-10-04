@@ -15,7 +15,7 @@ exports.registerUser = async (req, res) => {
         email: user.email,
         role: user.role
     });
-}
+};
 
 exports.loginUser = async (req, res, next) => {
     const {email, password} = req.validatedBody;
@@ -41,11 +41,12 @@ exports.loginUser = async (req, res, next) => {
         {expiresIn: '7d'}
     );
     res.json({accessToken, refreshToken});
-}
-exports.refreshToken = async (req, res) => {
+};
+
+exports.refreshToken = async (req, res, next) => {
     const { refreshToken } = req.body;
     if (!refreshToken) {
-          return next({ status: 401, message: 'No refresh token provided' });
+        return next({ status: 401, message: 'No refresh token provided' });
     }
     try {
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);

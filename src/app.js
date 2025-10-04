@@ -26,3 +26,5 @@ app.listen(PORT, () => {
 sequelize.authenticate()
     .then(() => console.log('Database connected!'))
     .catch(err => console.log('Unable connect database', err));
+
+module.exports = app;
